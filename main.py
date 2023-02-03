@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
+from pandas_profiling import ProfileReport
 
 def formatt_start_time_into_float(start_time: str):
     """Transform string values of column formatted: 'Start Time: HH: MM (p.m.|a.m.) Local' and turns into float number in this interval [0, 24)
@@ -46,14 +47,9 @@ def codif_y_ligar(dataframe_original, variables_a_codificar):
     res = res.drop([variables_a_codificar], axis = 1)
     return res 
 
-def main():
-        
+def data_cleaner():
     df = pd.read_csv(DATA_PATH)
     n_rows = df.shape[0]
-
-    # 1.1 resumen del dataset
-    print("resumen del dataset:")
-    print(df.describe())
 
     df.drop(columns=["other_info_string", "boxscore_url", "field_type", "date"], inplace=True)
 
@@ -73,21 +69,19 @@ def main():
 
     df[["time_condition", "field_conditions"]] = df['game_type'].str.split(',', expand=True)
     df.drop(columns=["game_type"], inplace=True)
+    return df
 
-    #1.2
-    print("tipos de variables (columnas):")
-    for column in df:
-        print(column, df[column].dtype)
-    
-    print("\n Dataset:")
-    print(df)
+def main():
+        
+    df = data_cleaner()
 
     # trabajar con los datos
     X = df.iloc[:, 1:]
     Y = df.iloc[:, 0]
-
+    profile = ProfileReport(df)
+    profile.to_file("output.html")
     # codificacion de variables
-    variables_a_codificar = ["away_team", "home_team", "venue", "time_condition", "field_conditions"]
+    variables_a_codificar = ["home_team", "venue", "time_condition", "field_conditions"]
     for variable in variables_a_codificar:
         X = codif_y_ligar(X, variable)
 
@@ -125,13 +119,6 @@ def main():
     #Obtener R cuadrado con los datos de prueba
     r_squared = regresor.score(X_prueba, y_prueba)
     print("R^2:", r_squared)
-     # Crea la gráfica de la regresión lineal múltiple
-    plt.scatter(predicciones, y_entreno)
-    plt.xlabel('Predicciones')
-    plt.ylabel('Valores reales')
-    plt.title('Gráfica de la regresión lineal múltiple')
-    plt.show()
-
     
     
     #df.to_excel("./data/data_excel.xlsx", index=False)
