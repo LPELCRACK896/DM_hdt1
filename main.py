@@ -51,12 +51,15 @@ def main():
 
     # Cleaning dataset
 
+
+    
+    df['attendance'] = df['attendance'].apply(lambda x: int(x.split("'")[0].replace(",", "")) if (x.split("'")[0].replace(",", "").isnumeric()) else None)
+
     # Removing data with no info of the attendance
     df = df.dropna(subset=["attendance"])
     n_rows = n_rows - df.shape[0]
     print(f'Rows removed because of null values: {n_rows}')
-    
-    df['attendance'] = df['attendance'].apply(lambda x: int(x.split("'")[0].replace(",", "")) if (x.split("'")[0].replace(",", "").isnumeric()) else None)
+
     df['start_time'] = df['start_time'].apply(formatt_start_time_into_float)
     df['game_duration'] = df['game_duration'].apply(formatt_game_duration_into_float)
 
