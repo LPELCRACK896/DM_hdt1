@@ -70,10 +70,7 @@ def main():
 
     pattern = re.compile(r'^[^\d]+$')
     df["venue"] = df["venue"].apply(lambda s: None if not pattern.match(s) else s.replace(":", "").replace(" ", "").lower()) 
-    
-    df.drop(columns=["venue"], inplace=True)
 
-    
     df[["time_condition", "field_conditions"]] = df['game_type'].str.split(',', expand=True)
     df.drop(columns=["game_type"], inplace=True)
 
